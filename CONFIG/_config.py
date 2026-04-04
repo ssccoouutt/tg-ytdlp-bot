@@ -14,37 +14,37 @@ class Config(object):
     # IMPORTANT (REQUIRED) SETTINGS - start filling settings here
     #######################################################        
     # Your bot name - Required (str)
-    BOT_NAME = "tgytdlp_test_bot"
+    BOT_NAME = "tg_ytdlp_bot"
     # A name for users - Required (str)
-    BOT_NAME_FOR_USERS = "tgytdlp_bot" #name in database
+    BOT_NAME_FOR_USERS = "tg_ytdlp_bot" #name in database
     # List of administrator IDs
-    ADMIN = [00000000, 111111111111]
+    ADMIN = [990321391]
     # Add allowed group IDs - Only these groups will be served by the bot
-    ALLOWED_GROUP = [-100111111111111, -1002222222222222]
+    ALLOWED_GROUP = []
     # API ID Telegram
-    API_ID = 00000000000000
+    API_ID = 32086282
     # API HASH Telegram
-    API_HASH = "abc0000000000000000000"
+    API_HASH = "064a66fe7097452e6ac8f4e8df28aa97"
     # Bot token
-    BOT_TOKEN = "00000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    BOT_TOKEN = "7480658816:AAElv7XMO4PkEk4zSX1sPxwWZbX1vIq70t8"
     # Mini-app URL
     MINIAPP_URL = "https://t.me/tgytdlp_test_bot/?startapp"
     # Channel ID for logs (you can use the same 1 channel ID for all LOGS)
-    LOGS_ID = -100111111111111  # Channel ID for logs
-    LOGS_VIDEO_ID = -100111111111111  # Channel ID for video logs
-    LOGS_NSFW_ID = -100111111111111  # Channel ID for video logs with NSWF tags
-    LOGS_IMG_ID = -100111111111111  # Channel ID for media command logs /img 
-    LOGS_PAID_ID = -100111111111111  # Channel ID for paid media logs
-    LOG_EXCEPTION = -100111111111111  # Channel ID for exception logs
+    LOGS_ID = -1003303207554  # Channel ID for logs
+    LOGS_VIDEO_ID = -1003771412038  # Channel ID for video logs
+    LOGS_NSFW_ID = -1003733166582  # Channel ID for video logs with NSWF tags
+    LOGS_IMG_ID = -1003853745978  # Channel ID for media command logs /img 
+    LOGS_PAID_ID = -1003859027859  # Channel ID for paid media logs
+    LOG_EXCEPTION = -1003527685409  # Channel ID for exception logs
     # Channel ID to subscribe to
-    SUBSCRIBE_CHANNEL = -100222222222222222222
+    SUBSCRIBE_CHANNEL = -1003815832164
     # Add subscription channel - Required (str)
-    SUBSCRIBE_CHANNEL_URL = "https://t.me/+abcdef"
+    SUBSCRIBE_CHANNEL_URL = "https://t.me/Channel1_xd"
     # Branding / UI text overrides (optional).
     # These values are used by translations via placeholders.
     REQUIRED_CHANNEL_MENTION = "@tg_ytdlp"
     CREDITS_MANAGED_BY = "@iilililiiillliiliililliilliliiil"
-    CREDITS_BOTS = "🇮🇹 @tgytdlp_it_bot\n🇦🇪 @tgytdlp_uae_bot\n🇬🇧 @tgytdlp_uk_bot\n🇫🇷 @tgytdlp_fr_bot"
+    CREDITS_BOTS = "🇮🇹 @tgytdlp_it_bot\\n🇦🇪 @tgytdlp_uae_bot\\n🇬🇧 @tgytdlp_uk_bot\\n🇫🇷 @tgytdlp_fr_bot"
     # Session string пользователя для чтения admin logs канала (опционально)
     # Боты не могут читать admin logs, поэтому нужна пользовательская сессия
     # Для генерации session string запустите: python generate_session_string.py
@@ -65,16 +65,16 @@ class Config(object):
     IMAGE_CACHE_DB_PATH = f"bot/video_cache/images"    
     # Firebase Config - Required (str for all)
     # Firebase settings
-    FIREBASE_USER = "XXX@gmail.com"
-    FIREBASE_PASSWORD = "XXXXXXXXXXXXXXXxx"
+    FIREBASE_USER = "test@example.com"
+    FIREBASE_PASSWORD = "testpassword123"
     FIREBASE_CONF = {
-        "apiKey": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-        "authDomain": "XXXXXXXXXXXX.firebaseapp.com",
-        "projectId": "XXXXXXXXXX-0000000000",
-        "storageBucket": "XXXXXXXXXXXXXX-0000000000.firebasestorage.app",
-        "messagingSenderId": "0000000000000000",
-        "appId": "1:0000000000000:web:00000000000000a",
-        "databaseURL": "https://XXXXXXXXXXXXXX-000000000-default-rtdb.europe-west1.firebasedatabase.app"
+        "apiKey": "test-api-key",
+        "authDomain": "test.firebaseapp.com",
+        "projectId": "test-project",
+        "storageBucket": "test.appspot.com",
+        "messagingSenderId": "1234567890",
+        "appId": "1:1234567890:web:testappid123",
+        "databaseURL": "https://test-project-default-rtdb.firebaseio.com"
     }
     ########################################################    
     ########################################################
@@ -83,7 +83,7 @@ class Config(object):
     # Cookie file URL
     # For Docker setup: served by configuration-webserver container
     # EX: "http://configuration-webserver/cookies/cookie.txt"
-    COOKIE_URL = "http://configuration-webserver/cookies/cookie.txt"
+    COOKIE_URL = "http://localhost/cookies/cookie.txt"
     # YouTube cookies URLs - main URL and backups
     # The bot will check cookies in the order: YOUTUBE_COOKIE_URL, YOUTUBE_COOKIE_URL_1, YOUTUBE_COOKIE_URL_2, etc. up to 10
     # If one URL does not work or the cookies are expired, the bot will automatically try the next one
