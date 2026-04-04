@@ -8,8 +8,8 @@ class Messages(object):
     #######################################################
     # Messages and errors
     #######################################################
-    CREDITS_MSG = "<blockquote><i>Managed by</i> {managed_by}\n{credits_bots}</blockquote>\n<b>🌍 Change language: /lang</b>"
-    TO_USE_MSG = "<i>To use this bot you need to subscribe to {required_channel} Telegram channel.</i>\nAfter you join the channel, <b>resend your video link again and bot will download it for you</b> ❤️\n\n<blockquote>P.S. Downloading 🔞NSFW content and files from ☁️Cloud Storage is paid! 1⭐️ = $0.02</blockquote>\n<blockquote>P.P.S. ‼️ Do not leave the channel - you will be banned from using the bot ⛔️</blockquote>"
+    CREDITS_MSG = "<blockquote><i>Managed by</i> {managed_by}\n{credits_bots}</blockquote>\n\n<b>🌎 1000+ Websites Supported</b>"
+    TO_USE_MSG = "<i>To use this bot you need to subscribe to {required_channel} Telegram channel.</i>\nAfter you join the channel, <b>resend your video link again and bot will download it for you</b>.\n\n<blockquote>P.S. Downloading files from ☁️Cloud Storage is paid! 1⭐️ = $0.02</blockquote>\n<blockquote>P.P.S. Do not leave the channel - you will be banned from using the bot.</blockquote>"
 
     ERROR1 = "Did not found a url link. Please enter a url with <b>https://</b> or <b>http://</b>"
 
