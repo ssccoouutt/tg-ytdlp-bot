@@ -1,135 +1,120 @@
-# Messages Configuration
+# Messages Configuration - ENGLISH ONLY
 import sys
 import os
 
-# Add the LANGUAGES directory to the path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'LANGUAGES'))
-
-try:
-    from language_router import get_messages, get_message, set_user_language
-except ImportError:
-    # Fallback if language router is not available
-    def get_messages(user_id=None, language_code=None):
-        return {}
-    def get_message(message_key, user_id=None, language_code=None):
-        return f"[{message_key}]"
-    def set_user_language(user_id, language_code):
-        return False
-
+# Simplified English-only messages
 class Messages(object):
     def __init__(self, user_id=None, language_code=None):
         """
-        Initialize Messages with user-specific language
+        Initialize Messages with English language only
         """
         self.user_id = user_id
-        self.language_code = language_code
-        self._messages = get_messages(user_id, language_code)
+        self.language_code = 'en'  # Force English
+        self._load_messages()
     
+    def _load_messages(self):
+        """Load all messages in English"""
+        
+        # Basic Messages
+        self.MAGIC_ALL_MODULES_LOADED_MSG = "✅ All modules loaded successfully!"
+        self.MAGIC_ALLOWED_GROUP_CHECK_LOG_MSG = "Group {chat_id} allowed: {allowed} | List: {list}"
+        self.MAGIC_VID_HELP_TITLE_MSG = "<b>📹 /vid Command Help</b>\n\n"
+        self.MAGIC_VID_HELP_USAGE_MSG = "<b>Usage:</b>\n<code>/vid &lt;url&gt;</code> or just send the URL directly\n\n"
+        self.MAGIC_VID_HELP_EXAMPLES_MSG = "<b>Examples:</b>\n"
+        self.MAGIC_VID_HELP_EXAMPLE_1_MSG = "• <code>/vid https://youtube.com/watch?v=... </code>\n"
+        self.MAGIC_VID_HELP_EXAMPLE_2_MSG = "• <code>/vid 1-7 https://youtube.com/playlist?list=... </code> (download items 1-7 from playlist)\n"
+        self.MAGIC_VID_HELP_EXAMPLE_3_MSG = "• <code>/vid -1-7 https://youtube.com/playlist?list=... </code> (download last 7 items)\n"
+        self.MAGIC_VID_HELP_ALSO_SEE_MSG = "\n<b>Also see:</b> /help for more commands"
+        self.MAGIC_HELP_CLOSED_MSG = "Help menu closed"
+        self.MAGIC_CLEANUP_COMPLETED_MSG = "🧹 Cleanup completed"
+        self.MAGIC_ERROR_DURING_CLEANUP_MSG = "⚠️ Error during cleanup: {error}"
+        self.MAGIC_ERROR_CLOSING_LOGGER_MSG = "⚠️ Error closing logger: {error}"
+        self.MAGIC_SIGNAL_RECEIVED_MSG = "📡 Signal {signal} received, shutting down gracefully..."
+        
+        # NSFW Messages
+        self.NSFW_ON_MSG = "✅ NSFW blur is now <b>DISABLED</b> (content will be shown without blur)"
+        self.NSFW_OFF_MSG = "🔞 NSFW blur is now <b>ENABLED</b> (content will be hidden with spoiler)"
+        self.NSFW_INVALID_MSG = "❌ Invalid option! Use <code>/nsfw on</code> or <code>/nsfw off</code>"
+        self.NSFW_ON_NO_BLUR_MSG = "✅ Disable Blur (Show Content)"
+        self.NSFW_ON_NO_BLUR_INACTIVE_MSG = "✅ Disable Blur (Currently Active)"
+        self.NSFW_OFF_BLUR_MSG = "🔞 Enable Blur (Hide Content)"
+        self.NSFW_OFF_BLUR_INACTIVE_MSG = "🔞 Enable Blur (Currently Active)"
+        self.NSFW_BLUR_SETTINGS_TITLE_MSG = "<b>🔞 NSFW Blur Settings</b>\n\nCurrent status: <code>{status}</code>\n\nChoose your preference:"
+        self.NSFW_MENU_OPENED_LOG_MSG = "NSFW settings menu opened"
+        self.NSFW_MENU_CLOSED_MSG = "NSFW settings closed"
+        self.NSFW_MENU_CLOSED_LOG_MSG = "NSFW settings menu closed"
+        self.NSFW_BLUR_DISABLED_MSG = "NSFW blur disabled"
+        self.NSFW_BLUR_DISABLED_CALLBACK_MSG = "✅ Blur disabled - NSFW content will be visible"
+        self.NSFW_BLUR_ENABLED_MSG = "NSFW blur enabled"
+        self.NSFW_BLUR_ENABLED_CALLBACK_MSG = "🔞 Blur enabled - NSFW content will be hidden"
+        self.NSFW_BLUR_SET_COMMAND_LOG_MSG = "NSFW blur set to {arg} via command"
+        self.NSFW_USER_REQUESTED_COMMAND_LOG_MSG = "User {user_id} requested NSFW command"
+        self.NSFW_USER_IS_ADMIN_LOG_MSG = "User {user_id} is admin: {is_admin}"
+        self.NSFW_USER_IS_IN_CHANNEL_LOG_MSG = "User {user_id} is in channel: {is_in_channel}"
+        
+        # Porn Detection Messages
+        self.PORN_DOMAIN_WHITELIST_MSG = "Domain in whitelist: {domain}"
+        self.PORN_DOMAIN_BLACKLIST_MSG = "Domain in blacklist: {domain_parts}"
+        self.PORN_ALL_TEXT_FIELDS_EMPTY_MSG = "All text fields empty"
+        self.PORN_WHITELIST_KEYWORDS_MSG = "Whitelist keywords found: {keywords}"
+        self.PORN_KEYWORDS_FOUND_MSG = "NSFW keywords found: {keywords}"
+        self.PORN_NO_KEYWORDS_FOUND_MSG = "No NSFW keywords found"
+        
+        # URL Extractor Messages
+        self.URL_EXTRACTOR_VID_HELP_CLOSE_BUTTON_MSG = "❌ Close"
+        self.URL_EXTRACTOR_HELP_CLOSE_BUTTON_MSG = "❌ Close"
+        
     def __getattr__(self, name):
         """
-        Get message by name from user's selected language ONLY
+        Get message by name - always returns English message or placeholder
         """
         if name.startswith('_'):
             return super().__getattribute__(name)
         
-        # STRICT: Only use language-specific messages, NO fallback to English
-        if hasattr(self, '_messages') and self._messages and name in self._messages:
-            value = self._messages[name]
-            if isinstance(value, str):
-                return _format_message(value)
-            return value
+        if hasattr(self, '_messages') and name in self._messages:
+            return self._messages[name]
         
-        # If message not found in selected language, return placeholder
+        # Return placeholder if message not found
         return f"[{name}]"
 
-    # All messages are now loaded dynamically from language-specific files
-    # through the language router. No static variables needed here.
 
-# -------------------------------------------------------------------------------------------------
-# Runtime formatting helpers
-# -------------------------------------------------------------------------------------------------
-
-class _SafeFormatDict(dict):
-    def __missing__(self, key):
-        # Preserve placeholders we don't know how to fill yet
-        return "{" + str(key) + "}"
-
-
-def _get_message_placeholders():
-    """
-    Return a dict of placeholders used by translations.
-    Must not import Config at module import time (CONFIG/_config.py imports this module).
-    """
-    defaults = {
-        # Defaults preserve original upstream branding unless overridden in Config.
-        "required_channel": "@Master_x_Bots",
-        "managed_by": "\n@itszeeshan196",
-        "credits_bots": "@Master_x_Bots\n@TechZoneX",
-    }
-
-    try:
-        from CONFIG.config import Config  # local import to avoid circular import at startup
-
-        required_channel = getattr(Config, "REQUIRED_CHANNEL_MENTION", None)
-        if not required_channel:
-            # Best-effort derive from SUBSCRIBE_CHANNEL_URL if it looks like a t.me link
-            url = getattr(Config, "SUBSCRIBE_CHANNEL_URL", "") or ""
-            if "t.me/" in url:
-                tail = url.split("t.me/", 1)[1].strip("/")
-                if tail and not tail.startswith("+"):
-                    required_channel = "@" + tail.lstrip("@")
-        if required_channel:
-            defaults["required_channel"] = required_channel
-
-        defaults["managed_by"] = getattr(Config, "CREDITS_MANAGED_BY", defaults["managed_by"]) or defaults["managed_by"]
-        defaults["credits_bots"] = getattr(Config, "CREDITS_BOTS", defaults["credits_bots"]) or defaults["credits_bots"]
-    except Exception:
-        pass
-
-    return defaults
-
-
-def _format_message(template: str) -> str:
-    try:
-        return template.format_map(_SafeFormatDict(_get_message_placeholders()))
-    except Exception:
-        return template
-
-# Global function to get Messages instance with user language
+# Helper function to get Messages instance
 def get_messages_instance(user_id=None, language_code=None):
     """
-    Get Messages instance with user-specific language
+    Get Messages instance with English language only
     """
-    return Messages(user_id, language_code)
+    return Messages(user_id, 'en')
 
-# GLOBAL PROTECTION: Safe function that NEVER fails
+
+# Safe function that NEVER fails
 def safe_get_messages(user_id=None, language_code=None):
     """
-    SAFE function that NEVER raises NameError for 'messages'
-    This function is GUARANTEED to return a Messages object
+    SAFE function that GUARANTEED returns a Messages object
     """
     try:
-        return get_messages_instance(user_id, language_code)
+        return get_messages_instance(user_id, 'en')
     except Exception:
-        # If everything fails, return a minimal Messages object
-        return Messages(None, None)
+        return Messages(None, 'en')
 
-# GLOBAL PROTECTION: Safe function for any context
+
+# Ultra-safe function for any context
 def safe_messages(user_id=None):
     """
     ULTRA-SAFE function that works in ANY context
     """
     try:
-        return get_messages_instance(user_id)
+        return get_messages_instance(user_id, 'en')
     except:
-        try:
-            return get_messages_instance(None)
-        except:
-            # Last resort - return a dummy object
-            class DummyMessages:
-                def __getattr__(self, name):
-                    return f"[{name}]"
-            return DummyMessages()
+        return Messages(None, 'en')
 
-# Backward compatibility - create default instance with English language
+
+# Set user language (now does nothing - English only)
+def set_user_language(user_id, language_code):
+    """
+    Language selection disabled - English only
+    """
+    return False
+
+
+# Backward compatibility - create default English instance
 messages = Messages(None, 'en')
