@@ -39,12 +39,12 @@ class Config(object):
     # Channel ID to subscribe to
     SUBSCRIBE_CHANNEL = -1001287988079
     # Add subscription channel - Required (str)
-    SUBSCRIBE_CHANNEL_URL = "https://t.me/techzonex"
+    SUBSCRIBE_CHANNEL_URL = "https://t.me/Master_x_Bots"
     # Branding / UI text overrides (optional).
     # These values are used by translations via placeholders.
-    REQUIRED_CHANNEL_MENTION = "@techzonex"
-    CREDITS_MANAGED_BY = "@itszeeshan196"
-    CREDITS_BOTS = ""
+    REQUIRED_CHANNEL_MENTION = "@Master_x_Bots"
+    CREDITS_MANAGED_BY = "\n@itszeeshan196"
+    CREDITS_BOTS = "@Master_x_Bots\n@TechZoneX"
     # Session string пользователя для чтения admin logs канала (опционально)
     # Боты не могут читать admin logs, поэтому нужна пользовательская сессия
     # Для генерации session string запустите: python generate_session_string.py
