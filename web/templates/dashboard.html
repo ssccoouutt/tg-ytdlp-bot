@@ -1,11 +1,11 @@
-{% set active_minutes = (config.get('STATS_ACTIVE_TIMEOUT', 900) // 60) if config else 15 %}
+{% set active_minutes = (config.STATS_ACTIVE_TIMEOUT // 60) if config and config.STATS_ACTIVE_TIMEOUT else 15 %}
 {% set channel_hours = 48 %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
+    <title>{{ title if title else 'Bot Statistics' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -329,12 +329,12 @@
     };
 </script>
 <script src="/static/dashboard.js"></script>
-        <div id="modal-root" class="modal hidden">
-            <div class="modal__dialog">
-                <button type="button" class="modal__close" data-modal-close aria-label="Close">×</button>
-                <h3 id="modal-title"></h3>
-                <div id="modal-body"></div>
-            </div>
-        </div>
+<div id="modal-root" class="modal hidden">
+    <div class="modal__dialog">
+        <button type="button" class="modal__close" data-modal-close aria-label="Close">×</button>
+        <h3 id="modal-title"></h3>
+        <div id="modal-body"></div>
+    </div>
+</div>
 </body>
 </html>
