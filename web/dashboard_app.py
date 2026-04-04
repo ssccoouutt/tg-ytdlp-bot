@@ -24,27 +24,27 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 
-# Fix template caching - properly load templates from the templates folder
+# Template and static directories
 templates_dir = BASE_DIR / "templates"
 static_dir = BASE_DIR / "static"
 
-# Create Jinja2 environment with proper settings
+# Create Jinja2 environment with minimal caching
 env = Environment(
     loader=FileSystemLoader(str(templates_dir)),
     autoescape=select_autoescape(['html', 'xml']),
-    cache_size=0  # Disable caching for Koyeb
+    cache_size=0
 )
 templates = Jinja2Templates(env=env)
 
 app = FastAPI(title="TG YTDLP Dashboard", version="1.0.0")
 
-# Mount static files directory
+# Mount static files
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 else:
     logger.warning(f"Static directory not found: {static_dir}")
 
-# CORS for API requests
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -54,15 +54,13 @@ app.add_middleware(
 )
 
 
-# Middleware to enforce authentication
+# Auth Middleware
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # Public paths
         public_paths = ["/login", "/api/login", "/api/reset-lockdown", "/static", "/health", "/favicon.ico"]
         if any(request.url.path.startswith(path) for path in public_paths):
             return await call_next(request)
         
-        # Read token from cookie
         token = request.cookies.get("auth_token")
         auth_service = get_auth_service()
         
@@ -87,44 +85,48 @@ class AuthMiddleware(BaseHTTPMiddleware):
 app.add_middleware(AuthMiddleware)
 
 
+# Login Page
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    """Login page - uses login.html template"""
     try:
         return templates.TemplateResponse("login.html", {"request": request})
     except Exception as e:
         logger.error(f"Login template error: {e}")
-        # Fallback HTML if template not found
+        # Fallback HTML
         return HTMLResponse("""
+        <!DOCTYPE html>
         <html>
         <head><title>Login</title></head>
-        <body>
-            <h2>Login</h2>
-            <form id="loginForm">
-                <input type="text" id="username" placeholder="Username"><br>
-                <input type="password" id="password" placeholder="Password"><br>
-                <button type="submit">Login</button>
-            </form>
+        <body style="font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; background: #0f172a;">
+            <div style="background: #121a2c; padding: 40px; border-radius: 24px; width: 350px;">
+                <h1 style="color: white; text-align: center;">Login</h1>
+                <form id="loginForm">
+                    <input type="text" id="username" placeholder="Username" style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px;" required>
+                    <input type="password" id="password" placeholder="Password" style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px;" required>
+                    <button type="submit" style="width: 100%; padding: 10px; background: linear-gradient(120deg, #22d3ee, #a855f7); border: none; border-radius: 8px; color: white; font-weight: bold;">Login</button>
+                </form>
+            </div>
             <script>
-            document.getElementById('loginForm').onsubmit = async (e) => {
-                e.preventDefault();
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        username: document.getElementById('username').value,
-                        password: document.getElementById('password').value
-                    })
-                });
-                if (res.ok) window.location.href = '/';
-                else alert('Login failed');
-            };
+                document.getElementById('loginForm').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const res = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            username: document.getElementById('username').value,
+                            password: document.getElementById('password').value
+                        })
+                    });
+                    if (res.ok) window.location.href = '/';
+                    else alert('Login failed');
+                };
             </script>
         </body>
         </html>
         """)
 
 
+# Login API
 class LoginRequest(BaseModel):
     username: str = Field(...)
     password: str = Field(...)
@@ -171,42 +173,101 @@ async def api_logout(request: Request):
     return response
 
 
+# Main Dashboard
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    """Main dashboard page - uses dashboard.html template"""
     try:
-        # Pass config values to template
-        return templates.TemplateResponse(
-            "dashboard.html",
-            {
-                "request": request,
-                "title": "Bot Statistics",
-                "config": {
-                    "STATS_ACTIVE_TIMEOUT": getattr(Config, "STATS_ACTIVE_TIMEOUT", 900),
-                    "BOT_NAME": getattr(Config, "BOT_NAME", "TG YTDLP Bot"),
-                    "DASHBOARD_PORT": getattr(Config, "DASHBOARD_PORT", 8000),
-                }
-            },
-        )
+        return templates.TemplateResponse("dashboard.html", {"request": request})
     except Exception as e:
         logger.error(f"Dashboard template error: {e}")
-        # Fallback HTML if template not found
-        return HTMLResponse(f"""
+        # Fallback HTML dashboard
+        return HTMLResponse("""
+        <!DOCTYPE html>
         <html>
         <head>
-            <title>TG YTDLP Bot Dashboard</title>
+            <title>Bot Dashboard</title>
             <style>
-                body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                .status {{ color: green; }}
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #0f172a; color: #e2e8f0; }
+                .header { background: linear-gradient(135deg, #22d3ee, #a855f7); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+                .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+                .card { background: #121a2c; border-radius: 12px; padding: 20px; border: 1px solid rgba(148, 163, 184, 0.2); }
+                .card h3 { margin-top: 0; color: #22d3ee; }
+                .list-row { padding: 8px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.1); display: flex; justify-content: space-between; }
+                .badge { background: #22d3ee; color: #0f172a; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+                button { background: #22d3ee; color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+                .logout-btn { background: #ef4444; color: white; float: right; }
             </style>
         </head>
         <body>
-            <h1>🤖 TG YTDLP Bot Dashboard</h1>
-            <p>Status: <span class="status">✅ Bot is running</span></p>
-            <p>Bot Name: {getattr(Config, 'BOT_NAME', 'Unknown')}</p>
-            <hr>
-            <p><em>Dashboard template not found. Bot functionality is unaffected.</em></p>
-            <a href="/login">Back to Login</a>
+            <div class="header">
+                <h1>🤖 Bot Dashboard</h1>
+                <p>Telegram Download Bot - Online</p>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <div class="grid">
+                <div class="card">
+                    <h3>📊 Active Users</h3>
+                    <div id="active-users">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3>🏆 Top Downloaders</h3>
+                    <div id="top-users">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3>🌐 Top Domains</h3>
+                    <div id="domains">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3>🔞 NSFW Users</h3>
+                    <div id="nsfw">Loading...</div>
+                </div>
+            </div>
+            <script>
+                async function fetchJSON(url) {
+                    try {
+                        const res = await fetch(url);
+                        if (!res.ok) return [];
+                        return await res.json();
+                    } catch(e) { return []; }
+                }
+                async function loadActiveUsers() {
+                    const data = await fetchJSON('/api/active-users?limit=10');
+                    const container = document.getElementById('active-users');
+                    if (data && data.length) {
+                        container.innerHTML = data.map(u => `<div class="list-row"><span>${u.user_id || 'Unknown'}</span><span class="badge">${u.count || 0}</span></div>`).join('');
+                    } else { container.innerHTML = '<p>No active users</p>'; }
+                }
+                async function loadTopUsers() {
+                    const data = await fetchJSON('/api/top-downloaders?period=all&limit=10');
+                    const container = document.getElementById('top-users');
+                    if (data && data.length) {
+                        container.innerHTML = data.map(u => `<div class="list-row"><span>${u.user_id || 'Unknown'}</span><span class="badge">${u.count || 0}</span></div>`).join('');
+                    } else { container.innerHTML = '<p>No data</p>'; }
+                }
+                async function loadDomains() {
+                    const data = await fetchJSON('/api/top-domains?period=all&limit=10');
+                    const container = document.getElementById('domains');
+                    if (data && data.length) {
+                        container.innerHTML = data.map(d => `<div class="list-row"><span>${d.domain || 'Unknown'}</span><span class="badge">${d.count || 0}</span></div>`).join('');
+                    } else { container.innerHTML = '<p>No data</p>'; }
+                }
+                async function loadNSFW() {
+                    const data = await fetchJSON('/api/top-nsfw-users?limit=10');
+                    const container = document.getElementById('nsfw');
+                    if (data && data.length) {
+                        container.innerHTML = data.map(u => `<div class="list-row"><span>${u.user_id || 'Unknown'}</span><span class="badge">${u.count || 0}</span></div>`).join('');
+                    } else { container.innerHTML = '<p>No NSFW data</p>'; }
+                }
+                async function logout() {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                }
+                loadActiveUsers();
+                loadTopUsers();
+                loadDomains();
+                loadNSFW();
+                setInterval(() => { loadActiveUsers(); loadTopUsers(); loadDomains(); loadNSFW(); }, 30000);
+            </script>
         </body>
         </html>
         """)
@@ -228,7 +289,7 @@ async def api_active_users(
 
 @app.get("/api/top-downloaders")
 async def api_top_downloaders(
-    period: str = Query(default="today", pattern="^(today|week|month|all)$"),
+    period: str = Query(default="all", pattern="^(today|week|month|all)$"),
     limit: int = 10,
 ):
     try:
@@ -239,7 +300,7 @@ async def api_top_downloaders(
 
 
 @app.get("/api/top-domains")
-async def api_top_domains(period: str = "today", limit: int = 10):
+async def api_top_domains(period: str = "all", limit: int = 10):
     try:
         return stats_service.fetch_top_domains(period=period, limit=limit)
     except Exception as e:
@@ -248,7 +309,7 @@ async def api_top_domains(period: str = "today", limit: int = 10):
 
 
 @app.get("/api/top-countries")
-async def api_top_countries(period: str = "today", limit: int = 10):
+async def api_top_countries(period: str = "all", limit: int = 10):
     try:
         return stats_service.fetch_top_countries(period=period, limit=limit)
     except Exception as e:
@@ -257,7 +318,7 @@ async def api_top_countries(period: str = "today", limit: int = 10):
 
 
 @app.get("/api/gender-stats")
-async def api_gender_stats(period: str = "today"):
+async def api_gender_stats(period: str = "all"):
     try:
         return stats_service.fetch_gender_stats(period)
     except Exception as e:
@@ -266,7 +327,7 @@ async def api_gender_stats(period: str = "today"):
 
 
 @app.get("/api/age-stats")
-async def api_age_stats(period: str = "today"):
+async def api_age_stats(period: str = "all"):
     try:
         return stats_service.fetch_age_stats(period)
     except Exception as e:
@@ -330,7 +391,7 @@ async def api_channel_events(hours: int = 48, limit: int = 100):
 
 @app.get("/api/suspicious-users")
 async def api_suspicious_users(
-    period: str = Query(default="today", pattern="^(today|week|month|all)$"),
+    period: str = Query(default="all", pattern="^(today|week|month|all)$"),
     limit: int = 20,
 ):
     try:
