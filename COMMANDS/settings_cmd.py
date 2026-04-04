@@ -2,7 +2,8 @@
 from pyrogram import filters
 from CONFIG.config import Config
 from CONFIG.messages import Messages, safe_get_messages
-from CONFIG.LANGUAGES.language_router import get_messages
+# Language system removed - English only
+# from CONFIG.LANGUAGES.language_router import get_messages
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ReplyParameters
 from pyrogram import enums
 from HELPERS.logger import send_to_logger
@@ -55,11 +56,12 @@ def settings_command(app, message):
     # Subscription check for non-admins
     if int(user_id) not in Config.ADMIN and not is_user_in_channel(app, message):
         return
-    # Main settings menu
+    # Main settings menu - LANGUAGE BUTTON REMOVED
     messages = safe_get_messages(user_id)
     keyboard = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_LANGUAGE_BUTTON_MSG, callback_data="settings__menu__language"),
+            # LANGUAGE BUTTON REMOVED - English only
+            # InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_LANGUAGE_BUTTON_MSG, callback_data="settings__menu__language"),
         ],
         [
             InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_CLEAN_BUTTON_MSG, callback_data="settings__menu__clean"),
@@ -100,26 +102,14 @@ def settings_menu_callback(app, callback_query: CallbackQuery):
         except Exception:
             pass
         return
-    if data == "language":
-        # Import language command
-        from COMMANDS.lang_cmd import lang_command
-        try:
-            lang_command(app, fake_message("/lang", user_id))
-        except FloodWait as e:
-            user_dir = os.path.join("users", str(user_id))
-            os.makedirs(user_dir, exist_ok=True)
-            with open(os.path.join(user_dir, "flood_wait.txt"), 'w') as f:
-                f.write(str(e.value))
-            try:
-                callback_query.answer(safe_get_messages(user_id).SETTINGS_FLOOD_LIMIT_MSG, show_alert=False)
-            except Exception:
-                pass
-            return
-        try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
-        except Exception:
-            pass
-        return
+    # LANGUAGE SECTION REMOVED - English only
+    # if data == "language":
+    #     # Language command disabled
+    #     try:
+    #         callback_query.answer("Language selection is disabled (English only)", show_alert=True)
+    #     except Exception:
+    #         pass
+    #     return
     if data == "clean":
         # Show the cleaning menu
         keyboard = InlineKeyboardMarkup([
@@ -250,10 +240,11 @@ safe_get_messages(user_id).SETTINGS_MORE_TITLE_MSG,
 
         return
     if data == "back":
-        # Return to main menu
+        # Return to main menu - LANGUAGE BUTTON REMOVED
         keyboard = InlineKeyboardMarkup([
             [
-                InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_LANGUAGE_BUTTON_MSG, callback_data="settings__menu__language"),
+                # LANGUAGE BUTTON REMOVED - English only
+                # InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_LANGUAGE_BUTTON_MSG, callback_data="settings__menu__language"),
             ],
             [
                 InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_CLEAN_BUTTON_MSG, callback_data="settings__menu__clean"),
