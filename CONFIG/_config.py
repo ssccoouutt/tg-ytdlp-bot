@@ -14,9 +14,9 @@ class Config(object):
     # IMPORTANT (REQUIRED) SETTINGS - start filling settings here
     #######################################################        
     # Your bot name - Required (str)
-    BOT_NAME = "tg_ytdlp_bot"
+    BOT_NAME = "Master_dl_Bot"
     # A name for users - Required (str)
-    BOT_NAME_FOR_USERS = "tg_ytdlp_bot" #name in database
+    BOT_NAME_FOR_USERS = "Master_dl_Bot" #name in database
     # List of administrator IDs
     ADMIN = [990321391]
     # Add allowed group IDs - Only these groups will be served by the bot
@@ -26,9 +26,9 @@ class Config(object):
     # API HASH Telegram
     API_HASH = "064a66fe7097452e6ac8f4e8df28aa97"
     # Bot token
-    BOT_TOKEN = "7480658816:AAESE4mC6MDncwNApefd0pHG_adD-kdvbSI"
+    BOT_TOKEN = "8708141958:AAE09tud_iZFTvlh6F9aS_uZjVxjdLRpmD4"
     # Mini-app URL
-    MINIAPP_URL = "https://t.me/tgytdlp_test_bot/?startapp"
+    MINIAPP_URL = "https://t.me/Master_dl_Bot/?startapp"
     # Channel ID for logs (you can use the same 1 channel ID for all LOGS)
     LOGS_ID = -1003303207554  # Channel ID for logs
     LOGS_VIDEO_ID = -1003771412038  # Channel ID for video logs
@@ -37,14 +37,14 @@ class Config(object):
     LOGS_PAID_ID = -1003859027859  # Channel ID for paid media logs
     LOG_EXCEPTION = -1003527685409  # Channel ID for exception logs
     # Channel ID to subscribe to
-    SUBSCRIBE_CHANNEL = -1003815832164
+    SUBSCRIBE_CHANNEL = -1001287988079
     # Add subscription channel - Required (str)
-    SUBSCRIBE_CHANNEL_URL = "https://t.me/Channel1_xd"
+    SUBSCRIBE_CHANNEL_URL = "https://t.me/techzonex"
     # Branding / UI text overrides (optional).
     # These values are used by translations via placeholders.
-    REQUIRED_CHANNEL_MENTION = "@tg_ytdlp"
-    CREDITS_MANAGED_BY = "@iilililiiillliiliililliilliliiil"
-    CREDITS_BOTS = "🇮🇹 @tgytdlp_it_bot\\n🇦🇪 @tgytdlp_uae_bot\\n🇬🇧 @tgytdlp_uk_bot\\n🇫🇷 @tgytdlp_fr_bot"
+    REQUIRED_CHANNEL_MENTION = "@techzonex"
+    CREDITS_MANAGED_BY = "@itszeeshan196"
+    CREDITS_BOTS = ""
     # Session string пользователя для чтения admin logs канала (опционально)
     # Боты не могут читать admin logs, поэтому нужна пользовательская сессия
     # Для генерации session string запустите: python generate_session_string.py
