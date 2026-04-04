@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pathlib
 import logging
+import os
 from typing import Any, List
 from fastapi import FastAPI, HTTPException, Query, Request, Cookie, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -10,6 +11,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from CONFIG.config import Config
 from services import stats_service
@@ -24,7 +26,21 @@ logger = logging.getLogger(__name__)
 # Run: uvicorn web.dashboard_app:app --host 0.0.0.0 --port {Config.DASHBOARD_PORT}
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+# Fix template caching issue - disable cache
+try:
+    # Try to use custom environment with caching disabled
+    env = Environment(
+        loader=FileSystemLoader(str(BASE_DIR / "templates")),
+        autoescape=select_autoescape(['html', 'xml']),
+        cache_size=0  # Disable caching
+    )
+    templates = Jinja2Templates(env=env)
+except Exception:
+    # Fallback to default with cache disabled
+    templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+    if hasattr(templates, 'env') and hasattr(templates.env, 'cache'):
+        templates.env.cache = {}
 
 app = FastAPI(title="TG YTDLP Dashboard", version="1.0.0")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -74,7 +90,39 @@ app.add_middleware(AuthMiddleware)
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    try:
+        return templates.TemplateResponse("login.html", {"request": request})
+    except Exception as e:
+        logger.error(f"Template error: {e}")
+        # Return simple HTML fallback
+        return HTMLResponse("""
+        <html>
+        <head><title>Login</title></head>
+        <body>
+            <h2>Login</h2>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Username" required><br>
+                <input type="password" id="password" placeholder="Password" required><br>
+                <button type="submit">Login</button>
+            </form>
+            <script>
+            document.getElementById('loginForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                if (res.ok) window.location.href = '/';
+                else alert('Login failed');
+            };
+            </script>
+        </body>
+        </html>
+        """)
 
 
 class LoginRequest(BaseModel):
@@ -127,16 +175,20 @@ async def api_logout(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {
-            "request": request,
-            "title": "Bot statistics",
-            "config": {
-                "STATS_ACTIVE_TIMEOUT": getattr(Config, "STATS_ACTIVE_TIMEOUT", 900),
+    try:
+        return templates.TemplateResponse(
+            "dashboard.html",
+            {
+                "request": request,
+                "title": "Bot statistics",
+                "config": {
+                    "STATS_ACTIVE_TIMEOUT": getattr(Config, "STATS_ACTIVE_TIMEOUT", 900),
+                },
             },
-        },
-    )
+        )
+    except Exception as e:
+        logger.error(f"Dashboard template error: {e}")
+        return HTMLResponse("<h1>Dashboard</h1><p>Bot is running. Template error occurred.</p>")
 
 
 @app.get("/api/active-users")
