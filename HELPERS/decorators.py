@@ -23,6 +23,7 @@ def app_handler(func):
             app = get_app()
             return func(app, *args, **kwargs)
     return wrapper
+
 # Get app instance
 app = get_app()
 
@@ -189,5 +190,3 @@ def background_handler(func=None, *, label=None):
             raise
 
     return wrapper
-
-    
