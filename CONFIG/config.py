@@ -37,7 +37,7 @@ class Config(object):
     LOGS_PAID_ID = -1003303207554  # Channel ID for paid media logs
     LOG_EXCEPTION = -1003303207554  # Channel ID for exception logs
     # Channel ID to subscribe to
-    SUBSCRIBE_CHANNEL = -1001287988079
+    SUBSCRIBE_CHANNEL = -1003303207554
     # Add subscription channel - Required (str)
     SUBSCRIBE_CHANNEL_URL = "https://t.me/Master_x_Bots"
     # Branding / UI text overrides (optional).
