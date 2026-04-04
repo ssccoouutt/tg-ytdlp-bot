@@ -23,34 +23,27 @@ from services.auth_service import get_auth_service
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Dashboard port comes from Config.DASHBOARD_PORT (default: 5555)
-# Run: uvicorn web.dashboard_app:app --host 0.0.0.0 --port {Config.DASHBOARD_PORT}
-
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 
 # Fix template caching issue - disable cache
 try:
-    # Try to use custom environment with caching disabled
     env = Environment(
         loader=FileSystemLoader(str(BASE_DIR / "templates")),
         autoescape=select_autoescape(['html', 'xml']),
-        cache_size=0  # Disable caching
+        cache_size=0
     )
     templates = Jinja2Templates(env=env)
 except Exception:
-    # Fallback to default with cache disabled
     templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
     if hasattr(templates, 'env') and hasattr(templates.env, 'cache'):
         templates.env.cache = {}
 
 app = FastAPI(title="TG YTDLP Dashboard", version="1.0.0")
 
-# Mount static files only if directory exists
 static_dir = BASE_DIR / "static"
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
-# CORS for API requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -60,15 +53,12 @@ app.add_middleware(
 )
 
 
-# Middleware to enforce authentication
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # Public paths
         public_paths = ["/login", "/api/login", "/api/reset-lockdown", "/static", "/health", "/favicon.ico"]
         if any(request.url.path.startswith(path) for path in public_paths):
             return await call_next(request)
         
-        # Read token from cookie
         token = request.cookies.get("auth_token")
         auth_service = get_auth_service()
         
@@ -95,7 +85,6 @@ app.add_middleware(AuthMiddleware)
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    """Login page - returns HTML form"""
     html_content = """
     <!DOCTYPE html>
     <html>
@@ -235,7 +224,6 @@ class LoginRequest(BaseModel):
 @app.post("/api/login")
 async def api_login(payload: LoginRequest, request: Request):
     auth_service = get_auth_service()
-    # Reload config before each login attempt
     auth_service.reload_config()
     client_ip = request.client.host if request.client else "unknown"
     
@@ -257,7 +245,6 @@ async def api_login(payload: LoginRequest, request: Request):
 
 @app.post("/api/reset-lockdown")
 async def api_reset_lockdown(request: Request):
-    """Reset lockout for the current IP (debug helper)."""
     auth_service = get_auth_service()
     client_ip = request.client.host if request.client else "unknown"
     auth_service.reset_lockdown(client_ip)
@@ -281,7 +268,9 @@ async def dashboard(request: Request):
     try:
         # Get bot info from config
         bot_name = getattr(Config, "BOT_NAME", "TG YTDLP Bot")
-        admin_id = getattr(Config, "ADMIN", [])[0] if getattr(Config, "ADMIN", []) else "Not set"
+        admin_list = getattr(Config, "ADMIN", [])
+        admin_id = str(admin_list[0]) if admin_list else "Not set"
+        dashboard_port = getattr(Config, "DASHBOARD_PORT", 8000)
         
         html_content = f"""
         <!DOCTYPE html>
@@ -384,7 +373,6 @@ async def dashboard(request: Request):
                     background: #e74c3c;
                 }}
                 .loading {{ text-align: center; padding: 20px; color: #666; }}
-                .error {{ color: #e74c3c; text-align: center; padding: 10px; }}
             </style>
         </head>
         <body>
@@ -479,7 +467,7 @@ async def dashboard(request: Request):
                     const data = await fetchJSON('/api/top-domains?period=all&limit=10');
                     const container = document.getElementById('topDomains');
                     if (data && Array.isArray(data) && data.length) {{
-                        let html = '<table><tr><th>Domain</th><th>Downloads</th></tr>';
+                        let html = 'table><tr><th>Domain</th><th>Downloads</th></tr>';
                         data.forEach(item => {{
                             html += `<tr><td>${{item.domain || 'Unknown'}}</td><td>${{item.count || 0}}</td></tr>`;
                         }});
@@ -494,7 +482,7 @@ async def dashboard(request: Request):
                     const data = await fetchJSON('/api/top-nsfw-users?limit=10');
                     const container = document.getElementById('nsfwStats');
                     if (data && Array.isArray(data) && data.length) {{
-                        let html = '<table><tr><th>User ID</th><th>NSFW Requests</th></tr>';
+                        let html = 'table><tr><th>User ID</th><th>NSFW Requests</th></tr>';
                         data.forEach(item => {{
                             html += `<tr><td>${{item.user_id || 'Unknown'}}</td><td>${{item.count || 0}}</td></tr>`;
                         }});
@@ -510,8 +498,8 @@ async def dashboard(request: Request):
                     container.innerHTML = `
                         <p><strong>Bot Name:</strong> {bot_name}</p>
                         <p><strong>Admin ID:</strong> {admin_id}</p>
-                        <p><strong>Status:</strong> <span class="status">✅ Online</span></p>
                         <p><strong>Dashboard Port:</strong> {dashboard_port}</p>
+                        <p><strong>Status:</strong> <span class="status">✅ Online</span></p>
                     `;
                 }}
                 
@@ -542,10 +530,7 @@ async def dashboard(request: Request):
                     window.location.href = '/login';
                 }}
                 
-                // Initial load
                 refreshAll();
-                
-                // Auto-refresh every 30 seconds
                 setInterval(refreshAll, 30000);
             </script>
         </body>
@@ -556,15 +541,14 @@ async def dashboard(request: Request):
         logger.error(f"Dashboard error: {e}")
         return HTMLResponse(f"""
         <html>
-        <head><title>Dashboard Error</title></head>
+        <head><title>Dashboard</title></head>
         <body>
-            <h1>Dashboard Error</h1>
-            <p>Error: {str(e)}</p>
-            <p>Bot is still running normally.</p>
+            <h1>🤖 Bot Dashboard</h1>
+            <p>Bot is running! Error: {str(e)}</p>
             <a href="/login">Back to Login</a>
         </body>
         </html>
-        """, status_code=500)
+        """, status_code=200)
 
 
 @app.get("/api/active-users")
