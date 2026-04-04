@@ -3,8 +3,7 @@ from __future__ import annotations
 import pathlib
 import logging
 import os
-import re
-from typing import Any, List, Dict, Optional
+from typing import Any, List
 from fastapi import FastAPI, HTTPException, Query, Request, Cookie, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -25,25 +24,27 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 
-# Fix template caching issue - disable cache
-try:
-    env = Environment(
-        loader=FileSystemLoader(str(BASE_DIR / "templates")),
-        autoescape=select_autoescape(['html', 'xml']),
-        cache_size=0
-    )
-    templates = Jinja2Templates(env=env)
-except Exception:
-    templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-    if hasattr(templates, 'env') and hasattr(templates.env, 'cache'):
-        templates.env.cache = {}
+# Fix template caching - properly load templates from the templates folder
+templates_dir = BASE_DIR / "templates"
+static_dir = BASE_DIR / "static"
+
+# Create Jinja2 environment with proper settings
+env = Environment(
+    loader=FileSystemLoader(str(templates_dir)),
+    autoescape=select_autoescape(['html', 'xml']),
+    cache_size=0  # Disable caching for Koyeb
+)
+templates = Jinja2Templates(env=env)
 
 app = FastAPI(title="TG YTDLP Dashboard", version="1.0.0")
 
-static_dir = BASE_DIR / "static"
+# Mount static files directory
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+else:
+    logger.warning(f"Static directory not found: {static_dir}")
 
+# CORS for API requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -53,12 +54,15 @@ app.add_middleware(
 )
 
 
+# Middleware to enforce authentication
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # Public paths
         public_paths = ["/login", "/api/login", "/api/reset-lockdown", "/static", "/health", "/favicon.ico"]
         if any(request.url.path.startswith(path) for path in public_paths):
             return await call_next(request)
         
+        # Read token from cookie
         token = request.cookies.get("auth_token")
         auth_service = get_auth_service()
         
@@ -85,135 +89,40 @@ app.add_middleware(AuthMiddleware)
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    html_content = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>TG YTDLP Bot - Login</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            * { box-sizing: border-box; }
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                margin: 0;
-                padding: 0;
-                min-height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            .login-container {
-                background: white;
-                border-radius: 10px;
-                box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-                padding: 40px;
-                width: 100%;
-                max-width: 400px;
-                margin: 20px;
-            }
-            h1 {
-                color: #333;
-                text-align: center;
-                margin-bottom: 30px;
-                font-size: 28px;
-            }
-            .logo {
-                text-align: center;
-                font-size: 48px;
-                margin-bottom: 20px;
-            }
-            input {
-                width: 100%;
-                padding: 12px 15px;
-                margin: 10px 0;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                font-size: 16px;
-                transition: border-color 0.3s;
-            }
-            input:focus {
-                outline: none;
-                border-color: #667eea;
-            }
-            button {
-                width: 100%;
-                padding: 12px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-                border-radius: 5px;
-                font-size: 16px;
-                cursor: pointer;
-                margin-top: 20px;
-                transition: transform 0.2s;
-            }
-            button:hover {
-                transform: translateY(-2px);
-            }
-            .error {
-                color: #e74c3c;
-                text-align: center;
-                margin-top: 15px;
-                display: none;
-            }
-            .info {
-                text-align: center;
-                margin-top: 20px;
-                color: #666;
-                font-size: 12px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="login-container">
-            <div class="logo">🤖</div>
-            <h1>TG YTDLP Bot</h1>
+    """Login page - uses login.html template"""
+    try:
+        return templates.TemplateResponse("login.html", {"request": request})
+    except Exception as e:
+        logger.error(f"Login template error: {e}")
+        # Fallback HTML if template not found
+        return HTMLResponse("""
+        <html>
+        <head><title>Login</title></head>
+        <body>
+            <h2>Login</h2>
             <form id="loginForm">
-                <input type="text" id="username" placeholder="Username" required autofocus>
-                <input type="password" id="password" placeholder="Password" required>
-                <div class="error" id="errorMsg">Invalid credentials</div>
+                <input type="text" id="username" placeholder="Username"><br>
+                <input type="password" id="password" placeholder="Password"><br>
                 <button type="submit">Login</button>
             </form>
-            <div class="info">
-                Default credentials: admin / admin123<br>
-                (Change in config.py)
-            </div>
-        </div>
-        
-        <script>
-            const form = document.getElementById('loginForm');
-            const errorMsg = document.getElementById('errorMsg');
-            
-            form.onsubmit = async (e) => {
+            <script>
+            document.getElementById('loginForm').onsubmit = async (e) => {
                 e.preventDefault();
-                errorMsg.style.display = 'none';
-                
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                
-                try {
-                    const res = await fetch('/api/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
-                    });
-                    
-                    if (res.ok) {
-                        window.location.href = '/';
-                    } else {
-                        errorMsg.style.display = 'block';
-                    }
-                } catch (err) {
-                    errorMsg.style.display = 'block';
-                }
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                if (res.ok) window.location.href = '/';
+                else alert('Login failed');
             };
-        </script>
-    </body>
-    </html>
-    """
-    return HTMLResponse(content=html_content)
+            </script>
+        </body>
+        </html>
+        """)
 
 
 class LoginRequest(BaseModel):
@@ -264,292 +173,46 @@ async def api_logout(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    """Main dashboard page"""
+    """Main dashboard page - uses dashboard.html template"""
     try:
-        # Get bot info from config
-        bot_name = getattr(Config, "BOT_NAME", "TG YTDLP Bot")
-        admin_list = getattr(Config, "ADMIN", [])
-        admin_id = str(admin_list[0]) if admin_list else "Not set"
-        dashboard_port = getattr(Config, "DASHBOARD_PORT", 8000)
-        
-        html_content = f"""
-        <!DOCTYPE html>
+        # Pass config values to template
+        return templates.TemplateResponse(
+            "dashboard.html",
+            {
+                "request": request,
+                "title": "Bot Statistics",
+                "config": {
+                    "STATS_ACTIVE_TIMEOUT": getattr(Config, "STATS_ACTIVE_TIMEOUT", 900),
+                    "BOT_NAME": getattr(Config, "BOT_NAME", "TG YTDLP Bot"),
+                    "DASHBOARD_PORT": getattr(Config, "DASHBOARD_PORT", 8000),
+                }
+            },
+        )
+    except Exception as e:
+        logger.error(f"Dashboard template error: {e}")
+        # Fallback HTML if template not found
+        return HTMLResponse(f"""
         <html>
         <head>
             <title>TG YTDLP Bot Dashboard</title>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
-                * {{ box-sizing: border-box; }}
-                body {{
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    background: #f5f5f5;
-                }}
-                .header {{
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    padding: 20px;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                }}
-                .header h1 {{ margin: 0; font-size: 24px; }}
-                .header p {{ margin: 5px 0 0; opacity: 0.9; }}
-                .nav {{
-                    background: white;
-                    padding: 10px 20px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                    margin-bottom: 20px;
-                }}
-                .nav a {{
-                    color: #667eea;
-                    text-decoration: none;
-                    margin-right: 20px;
-                    padding: 5px 10px;
-                    border-radius: 5px;
-                }}
-                .nav a:hover {{ background: #f0f0f0; }}
-                .container {{
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    padding: 0 20px;
-                }}
-                .stats-grid {{
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 30px;
-                }}
-                .stat-card {{
-                    background: white;
-                    border-radius: 10px;
-                    padding: 20px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    text-align: center;
-                }}
-                .stat-value {{
-                    font-size: 36px;
-                    font-weight: bold;
-                    color: #667eea;
-                }}
-                .stat-label {{
-                    color: #666;
-                    margin-top: 10px;
-                }}
-                .card {{
-                    background: white;
-                    border-radius: 10px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }}
-                .card h3 {{ margin-top: 0; color: #333; }}
-                table {{
-                    width: 100%;
-                    border-collapse: collapse;
-                }}
-                th, td {{
-                    padding: 10px;
-                    text-align: left;
-                    border-bottom: 1px solid #eee;
-                }}
-                th {{ background: #f8f8f8; }}
-                .status {{ color: #4caf50; font-weight: bold; }}
-                button {{
-                    background: #667eea;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    margin-right: 10px;
-                }}
-                button:hover {{ background: #5a67d8; }}
-                .refresh-btn {{
-                    background: #4caf50;
-                    margin-bottom: 20px;
-                }}
-                .logout-btn {{
-                    background: #e74c3c;
-                }}
-                .loading {{ text-align: center; padding: 20px; color: #666; }}
+                body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                .status {{ color: green; }}
             </style>
         </head>
         <body>
-            <div class="header">
-                <h1>🤖 {bot_name}</h1>
-                <p>Telegram Download Bot Dashboard</p>
-            </div>
-            <div class="nav">
-                <a href="/">Dashboard</a>
-                <a href="#" onclick="refreshAll()">Refresh</a>
-                <button class="logout-btn" onclick="logout()" style="float: right;">Logout</button>
-            </div>
-            
-            <div class="container">
-                <button class="refresh-btn" onclick="refreshAll()">🔄 Refresh All Stats</button>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="activeUsers">-</div>
-                        <div class="stat-label">Active Users (24h)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalDownloads">-</div>
-                        <div class="stat-label">Total Downloads</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="blockedUsers">-</div>
-                        <div class="stat-label">Blocked Users</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="uptime">-</div>
-                        <div class="stat-label">Bot Uptime</div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>📊 Top Downloaders</h3>
-                    <div id="topDownloaders" class="loading">Loading...</div>
-                </div>
-                
-                <div class="card">
-                    <h3>🌐 Top Domains</h3>
-                    <div id="topDomains" class="loading">Loading...</div>
-                </div>
-                
-                <div class="card">
-                    <h3>🔞 NSFW Stats</h3>
-                    <div id="nsfwStats" class="loading">Loading...</div>
-                </div>
-                
-                <div class="card">
-                    <h3>⚙️ System Info</h3>
-                    <div id="systemInfo" class="loading">Loading...</div>
-                </div>
-            </div>
-            
-            <script>
-                async function fetchJSON(url) {{
-                    try {{
-                        const res = await fetch(url);
-                        if (!res.ok) throw new Error(await res.text());
-                        return await res.json();
-                    }} catch(e) {{
-                        console.error(url, e);
-                        return null;
-                    }}
-                }}
-                
-                async function loadActiveUsers() {{
-                    const data = await fetchJSON('/api/active-users?limit=1');
-                    if (data && Array.isArray(data)) {{
-                        document.getElementById('activeUsers').innerText = data.length;
-                    }}
-                }}
-                
-                async function loadTopDownloaders() {{
-                    const data = await fetchJSON('/api/top-downloaders?period=all&limit=10');
-                    const container = document.getElementById('topDownloaders');
-                    if (data && Array.isArray(data) && data.length) {{
-                        let html = '<table><tr><th>User ID</th><th>Downloads</th></tr>';
-                        data.forEach(item => {{
-                            html += `<tr><td>${{item.user_id || 'Unknown'}}</td><td>${{item.count || 0}}</td></tr>`;
-                        }});
-                        html += '</table>';
-                        container.innerHTML = html;
-                    }} else {{
-                        container.innerHTML = '<p>No data available</p>';
-                    }}
-                }}
-                
-                async function loadTopDomains() {{
-                    const data = await fetchJSON('/api/top-domains?period=all&limit=10');
-                    const container = document.getElementById('topDomains');
-                    if (data && Array.isArray(data) && data.length) {{
-                        let html = 'table><tr><th>Domain</th><th>Downloads</th></tr>';
-                        data.forEach(item => {{
-                            html += `<tr><td>${{item.domain || 'Unknown'}}</td><td>${{item.count || 0}}</td></tr>`;
-                        }});
-                        html += '</table>';
-                        container.innerHTML = html;
-                    }} else {{
-                        container.innerHTML = '<p>No data available</p>';
-                    }}
-                }}
-                
-                async function loadNSFWStats() {{
-                    const data = await fetchJSON('/api/top-nsfw-users?limit=10');
-                    const container = document.getElementById('nsfwStats');
-                    if (data && Array.isArray(data) && data.length) {{
-                        let html = 'table><tr><th>User ID</th><th>NSFW Requests</th></tr>';
-                        data.forEach(item => {{
-                            html += `<tr><td>${{item.user_id || 'Unknown'}}</td><td>${{item.count || 0}}</td></tr>`;
-                        }});
-                        html += '</table>';
-                        container.innerHTML = html;
-                    }} else {{
-                        container.innerHTML = '<p>No NSFW data available</p>';
-                    }}
-                }}
-                
-                async function loadSystemInfo() {{
-                    const container = document.getElementById('systemInfo');
-                    container.innerHTML = `
-                        <p><strong>Bot Name:</strong> {bot_name}</p>
-                        <p><strong>Admin ID:</strong> {admin_id}</p>
-                        <p><strong>Dashboard Port:</strong> {dashboard_port}</p>
-                        <p><strong>Status:</strong> <span class="status">✅ Online</span></p>
-                    `;
-                }}
-                
-                async function loadBlockedUsers() {{
-                    const data = await fetchJSON('/api/blocked-users?limit=1');
-                    if (data && Array.isArray(data)) {{
-                        document.getElementById('blockedUsers').innerText = data.length;
-                    }}
-                }}
-                
-                async function refreshAll() {{
-                    document.getElementById('topDownloaders').innerHTML = '<div class="loading">Loading...</div>';
-                    document.getElementById('topDomains').innerHTML = '<div class="loading">Loading...</div>';
-                    document.getElementById('nsfwStats').innerHTML = '<div class="loading">Loading...</div>';
-                    
-                    await Promise.all([
-                        loadActiveUsers(),
-                        loadTopDownloaders(),
-                        loadTopDomains(),
-                        loadNSFWStats(),
-                        loadSystemInfo(),
-                        loadBlockedUsers()
-                    ]);
-                }}
-                
-                async function logout() {{
-                    await fetch('/api/logout', {{ method: 'POST' }});
-                    window.location.href = '/login';
-                }}
-                
-                refreshAll();
-                setInterval(refreshAll, 30000);
-            </script>
-        </body>
-        </html>
-        """
-        return HTMLResponse(content=html_content)
-    except Exception as e:
-        logger.error(f"Dashboard error: {e}")
-        return HTMLResponse(f"""
-        <html>
-        <head><title>Dashboard</title></head>
-        <body>
-            <h1>🤖 Bot Dashboard</h1>
-            <p>Bot is running! Error: {str(e)}</p>
+            <h1>🤖 TG YTDLP Bot Dashboard</h1>
+            <p>Status: <span class="status">✅ Bot is running</span></p>
+            <p>Bot Name: {getattr(Config, 'BOT_NAME', 'Unknown')}</p>
+            <hr>
+            <p><em>Dashboard template not found. Bot functionality is unaffected.</em></p>
             <a href="/login">Back to Login</a>
         </body>
         </html>
-        """, status_code=200)
+        """)
 
+
+# ============ API Endpoints ============
 
 @app.get("/api/active-users")
 async def api_active_users(
