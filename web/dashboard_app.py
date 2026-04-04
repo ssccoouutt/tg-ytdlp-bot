@@ -173,23 +173,6 @@ async def api_logout(request: Request):
     return response
 
 
-@app.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request):
-    try:
-        return templates.TemplateResponse(
-            "dashboard.html",
-            {
-                "request": request,
-                "title": "Bot statistics",
-                "config": {
-                    "STATS_ACTIVE_TIMEOUT": getattr(Config, "STATS_ACTIVE_TIMEOUT", 900),
-                },
-            },
-        )
-    except Exception as e:
-        logger.error(f"Dashboard template error: {e}")
-        return HTMLResponse("<h1>Dashboard</h1><p>Bot is running. Template error occurred.</p>")
-
 
 @app.get("/api/active-users")
 async def api_active_users(
@@ -200,7 +183,47 @@ async def api_active_users(
 
 
 @app.get("/api/top-downloaders")
-async def api_top_downloaders(
+async def api_@app.get("/", response_class=HTMLResponse)
+async def dashboard(request: Request):
+    try:
+        # Ensure all context variables are strings
+        context = {
+            "request": request,
+            "title": "Bot statistics",
+            "config": {
+                "STATS_ACTIVE_TIMEOUT": str(getattr(Config, "STATS_ACTIVE_TIMEOUT", 900)),
+            },
+        }
+        return templates.TemplateResponse("dashboard.html", context)
+    except Exception as e:
+        logger.error(f"Dashboard template error: {e}")
+        # Return simple HTML dashboard
+        return HTMLResponse("""
+        <html>
+        <head>
+            <title>TG YTDLP Bot Dashboard</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .status { padding: 20px; background: #e8f5e9; border-radius: 5px; }
+                h1 { color: #2e7d32; }
+            </style>
+        </head>
+        <body>
+            <h1>🤖 TG YTDLP Bot Dashboard</h1>
+            <div class="status">
+                <h2>✅ Bot is running!</h2>
+                <p><strong>Status:</strong> Online</p>
+                <p><strong>Bot Name:</strong> {bot_name}</p>
+                <p><strong>Admin ID:</strong> {admin_id}</p>
+                <hr>
+                <p><em>Full dashboard requires template files. Bot functionality is unaffected.</em></p>
+            </div>
+        </body>
+        </html>
+        """.format(
+            bot_name=getattr(Config, "BOT_NAME", "Unknown"),
+            admin_id=getattr(Config, "ADMIN", ["Unknown"])[0] if getattr(Config, "ADMIN", []) else "Unknown"
+        ))top_downloaders(
     period: str = Query(default="today", regex="^(today|week|month|all)$"),
     limit: int = 10,
 ):
