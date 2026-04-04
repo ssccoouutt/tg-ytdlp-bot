@@ -123,12 +123,7 @@
                     window.location.href = "/";
                 } else {
                     const data = await response.json();
-                    let errorText = data.detail || "Login failed";
-                    // If we have lockout info, show it
-                    if (errorText.includes("Too many failed attempts")) {
-                        errorText += "..";
-                    }
-                    errorMsg.textContent = errorText;
+                    errorMsg.textContent = data.detail || "Login failed";
                     errorMsg.classList.add("show");
                 }
             } catch (err) {
