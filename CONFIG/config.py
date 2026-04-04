@@ -236,7 +236,7 @@ class Config(object):
     RATE_LIMIT_PER_DAY = LimitsConfig.RATE_LIMIT_PER_DAY
     #######################################################
     # Dashboard configuration
-    DASHBOARD_PORT = 5555
+    DASHBOARD_PORT = 8000
     DASHBOARD_USERNAME = "admin"
     DASHBOARD_PASSWORD = "admin123"
     ACTIVE_SESSIONS_FILE = "CONFIG/.active_sessions.json"
