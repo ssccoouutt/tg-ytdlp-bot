@@ -31,11 +31,11 @@ class Config(object):
     MINIAPP_URL = "https://t.me/Master_dl_Bot/?startapp"
     # Channel ID for logs (you can use the same 1 channel ID for all LOGS)
     LOGS_ID = -1003303207554  # Channel ID for logs
-    LOGS_VIDEO_ID = -1003771412038  # Channel ID for video logs
-    LOGS_NSFW_ID = -1003733166582  # Channel ID for video logs with NSWF tags
-    LOGS_IMG_ID = -1003853745978  # Channel ID for media command logs /img 
-    LOGS_PAID_ID = -1003859027859  # Channel ID for paid media logs
-    LOG_EXCEPTION = -1003527685409  # Channel ID for exception logs
+    LOGS_VIDEO_ID = -1003303207554  # Channel ID for video logs
+    LOGS_NSFW_ID = -1003303207554  # Channel ID for video logs with NSWF tags
+    LOGS_IMG_ID = -1003303207554  # Channel ID for media command logs /img 
+    LOGS_PAID_ID = -1003303207554  # Channel ID for paid media logs
+    LOG_EXCEPTION = -1003303207554  # Channel ID for exception logs
     # Channel ID to subscribe to
     SUBSCRIBE_CHANNEL = -1001287988079
     # Add subscription channel - Required (str)
