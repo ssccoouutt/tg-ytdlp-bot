@@ -92,7 +92,6 @@ async def login_page(request: Request):
         return templates.TemplateResponse("login.html", {"request": request})
     except Exception as e:
         logger.error(f"Login template error: {e}")
-        # Fallback HTML
         return HTMLResponse("""
         <!DOCTYPE html>
         <html>
@@ -180,7 +179,6 @@ async def dashboard(request: Request):
         return templates.TemplateResponse("dashboard.html", {"request": request})
     except Exception as e:
         logger.error(f"Dashboard template error: {e}")
-        # Fallback HTML dashboard
         return HTMLResponse("""
         <!DOCTYPE html>
         <html>
