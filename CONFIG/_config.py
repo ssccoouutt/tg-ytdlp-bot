@@ -179,16 +179,17 @@ class Config(object):
     ARGS_COMMAND = CommandsConfig.ARGS_COMMAND
     LIST_COMMAND = CommandsConfig.LIST_COMMAND
     
-    # Messages configuration - using dynamic loading
+    # Messages configuration - SIMPLIFIED: English only
     @classmethod
     def get_messages(cls, user_id=None, language_code=None):
-        """Get messages instance for user or language"""
-        return safe_get_messages(user_id, language_code)
+        """Get messages instance - English only (language selection removed)"""
+        from CONFIG.LANGUAGES.messages_EN import MessagesEN
+        return MessagesEN()
     
     @classmethod
     def get_message(cls, message_key, user_id=None, language_code=None):
-        """Get specific message for user or language"""
-        messages = cls.get_messages(user_id, language_code)
+        """Get specific message - English only"""
+        messages = cls.get_messages()
         return getattr(messages, message_key, f"[{message_key}]")
     
     # Domains configuration
@@ -220,7 +221,9 @@ class Config(object):
     GROUP_MULTIPLIER = LimitsConfig.GROUP_MULTIPLIER
     NSFW_STAR_COST = LimitsConfig.NSFW_STAR_COST
 
-    STAR_RECEIVER = 7360853    
+    # IMPORTANT: Change this to YOUR Telegram user ID to receive Stars
+    STAR_RECEIVER = 990321391  # Changed from 7360853 to your ADMIN ID
+    
     # PO Token Provider configuration - these are defined above in the main config
     # No need to duplicate them here as they are already accessible
     #######################################################
