@@ -62,8 +62,8 @@ def _get_message_placeholders():
     """
     defaults = {
         # Defaults preserve original upstream branding unless overridden in Config.
-        "required_channel": "@tg_ytdlp",
-        "managed_by": "@itszeeshan196",
+        "required_channel": "@Master_x_Bots",
+        "managed_by": "\n@itszeeshan196",
         "credits_bots": "@Master_x_Bots\n@TechZoneX",
     }
 
