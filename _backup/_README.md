@@ -1,7 +1,7 @@
 # cookiebot - tg-ytdlp-bot
 
 Support me on [BuyMeACoffee](https://buymeacoffee.com/upekshaip) \
-Thanks to Contributor - [@IIlIlIlIIIlllIIlIIlIllIIllIlIIIl](https://t.me/IIlIlIlIIIlllIIlIIlIllIIllIlIIIl) - [chelaxian](https://github.com/chelaxian/tg-ytdlp-bot)
+Thanks to Contributor - [@IIlIlIlIIIlllIIlIIlIllIIllIlIIIl](https://t.me/IIlIlIlIIIlllIIlIIlIllIIllIlIIIl) - [chelaxian](https://t.me/master_x_bots)
 
 Download private YouTube/videos using a cookie file.
 
@@ -450,7 +450,7 @@ These rules allow read and write operations only if the request contains a valid
 
 ### 5. Autostart service
 
-To create auto-start service for this bot - copy text from this file https://github.com/chelaxian/tg-ytdlp-bot/blob/main/etc/systemd/system/tg-ytdlp-bot.service and paste it to 
+To create auto-start service for this bot - copy text from this file https://t.me/master_x_bots/blob/main/etc/systemd/system/tg-ytdlp-bot.service and paste it to 
 ```bash
 /etc/systemd/system/tg-ytdlp-bot.service
 ```
