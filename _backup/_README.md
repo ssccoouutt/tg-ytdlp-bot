@@ -32,7 +32,7 @@ sudo apt install git
 ```
 
 ```sh
-git clone https://github.com/upekshaip/tg-ytdlp-bot.git
+git clone https://t.me/TechZoneX.git
 cd tg-ytdlp-bot
 sudo mv _config.py config.py
 nano config.py
@@ -87,7 +87,7 @@ sudo apt install git python3.10 python3-pip python3.10-venv
 ```
 #### Setting up `config.py`
 ```sh
-git clone https://github.com/upekshaip/tg-ytdlp-bot.git
+git clone https://t.me/TechZoneX.git
 cd tg-ytdlp-bot
 sudo mv _config.py config.py
 nano config.py
