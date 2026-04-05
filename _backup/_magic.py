@@ -4138,7 +4138,7 @@ def down_and_audio(app, message, url, tags, quality_key=None, playlist_name=None
                 # Send full error message with instructions immediately
                 send_to_all(
                     message,
-                    "> Check [here](https://github.com/chelaxian/tg-ytdlp-bot/wiki/YT_DLP#supported-sites) if your site supported\n"
+                    "> Check [here](https://drive.google.com/file/d/1Z42fkMhJwvOjzV5MS2CeHIv_Ch8pA0Oz/view?usp=drivesdk) if your site supported\n"
                     "> You may need `cookie` for downloading this audio. First, clean your workspace via **/clean** command\n"
                     "> For Youtube - get `cookie` via **/download_cookie** command. For any other supported site - send your own cookie ([guide1](https://t.me/c/2303231066/18)) ([guide2](https://t.me/c/2303231066/22)) and after that send your audio link again.\n"
                     f"────────────────\n❌ Error downloading: {error_text}"
@@ -4857,7 +4857,7 @@ def down_and_up(app, message, url, playlist_name, video_count, video_start_with,
                 # Send full error message with instructions immediately
                 send_to_all(
                     message,                   
-                    "> Check [here](https://github.com/chelaxian/tg-ytdlp-bot/wiki/YT_DLP#supported-sites) if your site supported\n"
+                    "> Check [here](https://drive.google.com/file/d/1Z42fkMhJwvOjzV5MS2CeHIv_Ch8pA0Oz/view?usp=drivesdk) if your site supported\n"
                     "> You may need `cookie` for downloading this video. First, clean your workspace via **/clean** command\n"
                     "> For Youtube - get `cookie` via **/download_cookie** command. For any other supported site - send your own cookie ([guide1](https://t.me/c/2303231066/18)) ([guide2](https://t.me/c/2303231066/22)) and after that send your video link again.\n"
                     f"────────────────\n❌ Error downloading: {error_message}"
