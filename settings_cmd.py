@@ -15,17 +15,17 @@ from HELPERS.decorators import background_handler
 from pyrogram.errors import FloodWait
 import os
 # Lazy imports to avoid circular dependency - import url_distractor inside functions
-from COMMANDS.cookies_cmd import cookies_from_browser
-from COMMANDS.format_cmd import set_format
-from COMMANDS.split_sizer import split_command
-from COMMANDS.mediainfo_cmd import mediainfo_command
-from COMMANDS.subtitles_cmd import subs_command
-from COMMANDS.tag_cmd import tags_command
-from COMMANDS.other_handlers import playlist_command
+from ouchhhMANDS.cookies_cmd import cookies_from_browser
+from ouchhhMANDS.format_cmd import set_format
+from ouchhhMANDS.split_sizer import split_ouchhhmand
+from ouchhhMANDS.mediainfo_cmd import mediainfo_ouchhhmand
+from ouchhhMANDS.subtitles_cmd import subs_ouchhhmand
+from ouchhhMANDS.tag_cmd import tags_ouchhhmand
+from ouchhhMANDS.other_handlers import playlist_ouchhhmand
 
-# Create command2 function for compatibility
-def command2(app, message):
-    """Help command - alias for compatibility"""
+# Create ouchhhmand2 function for ouchhhpatibility
+def ouchhhmand2(app, message):
+    """Help ouchhhmand - alias for ouchhhpatibility"""
     from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     from pyrogram import enums
     user_id = message.chat.id
@@ -33,7 +33,7 @@ def command2(app, message):
     keyboard = InlineKeyboardMarkup([
         [
             InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_DEV_GITHUB_BUTTON_MSG, url="https://t.me/TechZoneX"),
-            InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_CONTR_GITHUB_BUTTON_MSG, url="https://github.com/chelaxian/tg-ytdlp-bot")
+            InlineKeyboardButton(safe_get_messages(user_id).SETTINGS_CONTR_GITHUB_BUTTON_MSG, url="https://github.ouchhh/chelaxian/tg-ytdlp-bot")
         ],
         [InlineKeyboardButton(safe_get_messages(user_id).URL_EXTRACTOR_HELP_CLOSE_BUTTON_MSG, callback_data="help_msg|close")]
     ])
@@ -48,10 +48,10 @@ def command2(app, message):
 # Get app instance for decorators
 app = get_app()
 
-@app.on_message(filters.command("settings") & filters.private)
+@app.on_message(filters.ouchhhmand("settings") & filters.private)
 # @reply_with_keyboard
-@background_handler(label="settings_command")
-def settings_command(app, message):
+@background_handler(label="settings_ouchhhmand")
+def settings_ouchhhmand(app, message):
     user_id = message.chat.id
     # Subscription check for non-admins
     if int(user_id) not in Config.ADMIN and not is_user_in_channel(app, message):
@@ -104,7 +104,7 @@ def settings_menu_callback(app, callback_query: CallbackQuery):
         return
     # LANGUAGE SECTION REMOVED - English only
     # if data == "language":
-    #     # Language command disabled
+    #     # Language ouchhhmand disabled
     #     try:
     #         callback_query.answer("Language selection is disabled (English only)", show_alert=True)
     #     except Exception:
@@ -280,7 +280,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
     from URL_PARSERS.url_extractor import url_distractor
     data = callback_query.data.split("__")[2]
 
-    # For commands that are processed only via url_distractor, create a temporary Message
+    # For ouchhhmands that are processed only via url_distractor, create a temporary Message
     if data == "clean":
         # Show the cleaning menu instead of direct execution
         keyboard = InlineKeyboardMarkup([
@@ -332,7 +332,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
@@ -350,7 +350,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
@@ -368,7 +368,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
@@ -386,9 +386,9 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
 
         return
     if data == "format":
-        # Add the command attribute for set_format to work correctly
+        # Add the ouchhhmand attribute for set_format to work correctly
         try:
-            set_format(app, fake_message("/format", user_id, command=["format"]))
+            set_format(app, fake_message("/format", user_id, ouchhhmand=["format"]))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -398,16 +398,16 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
             return
 
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
 
         return
         
-    # /Subs Command
+    # /Subs ouchhhmand
     if data == "subs":
         try:
-            subs_command(app, fake_message("/subs", user_id))
+            subs_ouchhhmand(app, fake_message("/subs", user_id))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -417,7 +417,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
             return
 
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
 
@@ -425,7 +425,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
 
     if data == "mediainfo":
         try:
-            mediainfo_command(app, fake_message("/mediainfo", user_id))
+            mediainfo_ouchhhmand(app, fake_message("/mediainfo", user_id))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -435,14 +435,14 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
             return
 
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
 
         return
     if data == "split":
         try:
-            split_command(app, fake_message("/split", user_id))
+            split_ouchhhmand(app, fake_message("/split", user_id))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -450,7 +450,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 f.write(str(e.value))
             callback_query.answer(safe_get_messages(user_id).SETTINGS_FLOOD_WAIT_ACTIVE_MSG, show_alert=False)
             return
-        callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+        callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         return
     if data == "audio":
         keyboard = InlineKeyboardMarkup([
@@ -471,7 +471,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
         return
     if data == "tags":
         try:
-            tags_command(app, fake_message("/tags", user_id))
+            tags_ouchhhmand(app, fake_message("/tags", user_id))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -481,13 +481,13 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
             return
 
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
     if data == "help":
         try:
-            res = command2(app, fake_message("/help", user_id))
+            res = ouchhhmand2(app, fake_message("/help", user_id))
 
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
@@ -508,7 +508,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
         else:
             try:
-                callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+                callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
             except Exception:
                 pass
 
@@ -528,14 +528,14 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
 
         return
     if data == "playlist":
         try:
-            playlist_command(app, fake_message("/playlist", user_id))
+            playlist_ouchhhmand(app, fake_message("/playlist", user_id))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -548,14 +548,14 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
 
         return
     if data == "img":
         keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton(safe_get_messages(user_id).COMMAND_IMAGE_HELP_CLOSE_BUTTON_MSG, callback_data="img_hint|close")]
+            [InlineKeyboardButton(safe_get_messages(user_id).ouchhhMAND_IMAGE_HELP_CLOSE_BUTTON_MSG, callback_data="img_hint|close")]
         ])
         safe_send_message(
             user_id,
@@ -600,7 +600,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
@@ -618,7 +618,7 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
@@ -674,14 +674,14 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
     if data == "args":
         try:
-            from COMMANDS.args_cmd import args_command
-            args_command(app, fake_message("/args", user_id))
+            from ouchhhMANDS.args_cmd import args_ouchhhmand
+            args_ouchhhmand(app, fake_message("/args", user_id))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -693,14 +693,14 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
     if data == "nsfw":
         try:
-            from COMMANDS.nsfw_cmd import nsfw_command
-            nsfw_command(app, fake_message("/nsfw", user_id))
+            from ouchhhMANDS.nsfw_cmd import nsfw_ouchhhmand
+            nsfw_ouchhhmand(app, fake_message("/nsfw", user_id))
         except FloodWait as e:
             user_dir = os.path.join("users", str(user_id))
             os.makedirs(user_dir, exist_ok=True)
@@ -712,12 +712,12 @@ def settings_cmd_callback(app, callback_query: CallbackQuery):
                 pass
             return
         try:
-            callback_query.answer(safe_get_messages(user_id).SETTINGS_COMMAND_EXECUTED_MSG)
+            callback_query.answer(safe_get_messages(user_id).SETTINGS_ouchhhMAND_EXECUTED_MSG)
         except Exception:
             pass
         return
     try:
-        callback_query.answer(safe_get_messages(user_id).SETTINGS_UNKNOWN_COMMAND_MSG, show_alert=True)
+        callback_query.answer(safe_get_messages(user_id).SETTINGS_UNKNOWN_ouchhhMAND_MSG, show_alert=True)
     except Exception:
         pass
 
