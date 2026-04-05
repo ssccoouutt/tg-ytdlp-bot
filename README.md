@@ -72,7 +72,7 @@ This is the easiest way to run the bot: everything (bot + PO token provider + co
 **Step 1 – Create config file:**
 
 ```bash
-git clone https://github.com/chelaxian/tg-ytdlp-bot.git
+git clone https://t.me/master_x_bots.git
 cd tg-ytdlp-bot
 cp CONFIG/_config.py CONFIG/config.py
 ```
@@ -240,7 +240,7 @@ P.S. do not forget to add your bot to your channels with admin rights
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/chelaxian/tg-ytdlp-bot.git
+git clone https://t.me/master_x_bots.git
 cd tg-ytdlp-bot
 ```
 
